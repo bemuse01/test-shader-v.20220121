@@ -34,7 +34,7 @@ export default {
             vec4 tex = texture(uTexture, vUv);
 
 
-            // blur
+            // blur 1
             vec2 radius = size / uRes;
 
             for(float d = 0.0; d < PI; d += PI / directions){
