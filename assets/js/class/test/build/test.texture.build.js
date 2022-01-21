@@ -55,8 +55,8 @@ export default class{
         for(let i = 0; i < this.param.count; i++){
             const index = i * prefabGeometryCount * 3
             
-            const x = Math.random() * 20 - 10
-            const y = Math.random() * 20 - 10
+            const x = Math.random() * 10 - 5
+            const y = Math.random() * 10 - 5
 
             for(let j = 0; j < prefabGeometryCount; j++){
                 const idx = index + j * 3
