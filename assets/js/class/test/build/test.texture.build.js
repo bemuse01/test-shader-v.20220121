@@ -25,8 +25,6 @@ export default class{
     initRenderTarget(){
         const {w, h} = this.size.el
 
-        console.log(w, h)
-
         this.renderTarget = new THREE.WebGLMultisampleRenderTarget(w, h)
         
         this.rtCamera = new THREE.PerspectiveCamera(TestParam.fov, w / h, TestParam.near, TestParam.far)
@@ -37,21 +35,7 @@ export default class{
 
 
     // create
-    create(group){
-        this.createTexture()
-        console.log(this.size)
-
-        const geometry = new THREE.PlaneGeometry(this.size.obj.w, this.size.obj.h, 1, 1)
-        const material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            transparent: true,
-            map: this.renderTarget.texture
-        })
-        const mesh = new THREE.Mesh(geometry, material)
-
-        group.add(mesh)
-    }
-    createTexture(){
+    create(){
         const prefabGeometry = new THREE.CircleGeometry(this.param.radius, this.param.seg)
         const prefabGeometryCount = prefabGeometry.attributes.position.count
    

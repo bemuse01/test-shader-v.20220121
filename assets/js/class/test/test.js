@@ -3,11 +3,13 @@ import PublicMethod from '../../method/method.js'
 import PARAM from './param/test.param.js'
 
 import TEXTURE from './build/test.texture.build.js'
+import PLANE from './build/test.plane.build.js'
 
 export default class{
     constructor(){
         this.modules = {
-            texture: TEXTURE
+            texture: TEXTURE,
+            plane: PLANE
         }
         this.group = {}
         this.comp = {}
@@ -67,7 +69,7 @@ export default class{
             const instance = this.modules[module]
             const group = this.group[module]
 
-            this.comp[module] = new instance({group, size: this.size})
+            this.comp[module] = new instance({group, size: this.size, texture: this.comp['texture']})
         }
     }
 
