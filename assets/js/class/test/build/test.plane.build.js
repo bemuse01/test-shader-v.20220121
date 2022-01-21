@@ -25,7 +25,8 @@ export default class{
             fragmentShader: Shader.fragment,
             transparent: true,
             uniforms: {
-                uTexture: {value: this.texture}
+                uTexture: {value: this.texture},
+                uRes: {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
             }
         })
         this.mesh = new THREE.Mesh(geometry, material)
