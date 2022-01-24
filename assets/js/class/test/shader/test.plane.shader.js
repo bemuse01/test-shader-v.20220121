@@ -20,7 +20,7 @@ export default {
 
         const float directions = 16.0;
         const float quality = 4.0;
-        const float size = 9.0;
+        const float size = 8.0;
 
         const vec4 o = vec4(0, 0, 0, -12.0);
         const mat4 colorMatrix = mat4(
