@@ -31,7 +31,7 @@ export default class{
     initRenderTarget(){
         const {w, h} = this.size.el
 
-        this.renderTarget = new THREE.WebGLMultisampleRenderTarget(w, h)
+        this.renderTarget = new THREE.WebGLMultisampleRenderTarget(w, h, {format: THREE.RGBAFormat})
         
         this.rtCamera = new THREE.PerspectiveCamera(TestParam.fov, w / h, TestParam.near, TestParam.far)
         this.rtCamera.position.z = TestParam.pos
