@@ -3,8 +3,6 @@ export default {
         const {data, width, height} = texture.image
         const array = position.array
         
-        console.log(width, height)
-
         for(let j = 0; j < height; j++){
 
             const px = Math.random() * w - w / 2
@@ -24,9 +22,16 @@ export default {
                 data[index] = x + px
                 data[index + 1] = y + py
                 // velocity
-                data[index + 2] = 0
-                data[index + 3] = 0
+                data[index + 2] = vx
+                data[index + 3] = vy
             }
         }
     },
+    fillPositionTexture2({w, h, position}){
+        for(let j = 0; j < h; j++){
+            for(let i = 0; i < w; i++){
+                
+            }
+        }
+    }
 }

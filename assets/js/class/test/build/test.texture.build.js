@@ -10,9 +10,12 @@ export default class{
         this.size = size
 
         this.param = {
-            count: 1,
-            radius: 1,
-            seg: 16,
+            count: 1000,
+            radius: 2,
+            seg: 20,
+            defaultDuration: 6,
+            randomDuration: 4,
+            delay: 5
         }
 
         this.init(group, renderer)
@@ -85,12 +88,12 @@ export default class{
 
         this.positionUniforms = this.positionVariable.material.uniforms
         
-        this.positionUniforms['uTime'] = {value: null}
+        this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
     }
 
 
     // create
-    create(){
+    create(group){
         const prefabGeometry = new THREE.CircleGeometry(this.param.radius, this.param.seg)
         const prefabGeometryCount = prefabGeometry.attributes.position.count
    
@@ -102,6 +105,7 @@ export default class{
             vertexShader: Shader.draw.vertex,
             fragmentShader: Shader.draw.fragment,
             transparent: true,
+            // blending: THREE.AdditiveBlending,
             uniforms: {
                 uTexture: {value: null},
                 uPosition: {value: null},
@@ -112,30 +116,40 @@ export default class{
 
         const {w, h} = this.size.obj
 
+        const start = []
+        const end = []
+        const duration = []
+        const delay = []
         const uv = []
 
         for(let i = 0; i < this.param.count; i++){
             const index = i * prefabGeometryCount * 3
             
-            const x = Math.random() * w - w / 2
-            const y = Math.random() * h - h / 2
-            
+            const sx = Math.random() * w - w / 2
+            const sy = Math.random() * h - h / 2
+
+            const ex = Math.random() * w - w / 2
+            const ey = Math.random() * h - h / 2
+
+            const dur = Math.random() * this.param.randomDuration + this.param.defaultDuration
+
+            const del = Math.random() * this.param.delay
 
             for(let j = 0; j < prefabGeometryCount; j++){
                 const idx = index + j * 3
 
-                // posArr[idx] += x
-                // posArr[idx + 1] += y
-
-                const u = j
-                const v = i
-
-                uv.push(u, v)
+                start.push(sx, sy, 0)
+                end.push(ex, ey, 0)
+                duration.push(dur)
+                delay.push(del)
+                uv.push(j, i)
             }
         }
 
-        console.log(uv)
-
+        geometry.setAttribute('aStartPosition', new THREE.Float32BufferAttribute(start, 3))
+        geometry.setAttribute('aEndPosition', new THREE.Float32BufferAttribute(end, 3))
+        geometry.setAttribute('aDuration', new THREE.Float32BufferAttribute(duration, 1))
+        geometry.setAttribute('aDelay', new THREE.Float32BufferAttribute(delay, 1))
         geometry.setAttribute('aUv', new THREE.Float32BufferAttribute(uv, 2))
 
         this.mesh = new THREE.Mesh(geometry, material)
@@ -155,10 +169,32 @@ export default class{
         this.gpuCompute.compute()
 
         this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
-        this.mesh.material.uniforms['uTime'].value = window.performance.now()
+        this.mesh.material.uniforms['uTime'].value += 1 / 60
+        this.mesh.material.uniforms['uTime'].value %= (this.param.randomDuration + this.param.defaultDuration + this.param.delay)
 
         renderer.setRenderTarget(this.renderTarget)
+        renderer.clear()
         renderer.render(this.rtScene, this.rtCamera)
         renderer.setRenderTarget(null)
+
+        // renderer.clear()
+
+        // const position = this.mesh.geometry.attributes.position
+        // const posArr = position.array
+
+        // for(let i = 0; i < this.param.count; i++){
+        //     const index = i * (this.param.seg + 2) * 3
+ 
+        //     const {x, y} = this.velocity[i]
+
+        //     for(let j = 0; j < this.param.seg + 2; j++){
+        //         const idx = index + j * 3
+
+        //         posArr[idx] += x
+        //         posArr[idx + 1] += y
+        //     }
+        // }
+
+        // position.needsUpdate = true
     }
 }
