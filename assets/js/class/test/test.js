@@ -6,7 +6,7 @@ import TEXTURE from './build/test.texture.build.js'
 import PLANE from './build/test.plane.build.js'
 
 export default class{
-    constructor(){
+    constructor({app}){
         this.modules = {
             texture: TEXTURE,
             plane: PLANE
@@ -15,15 +15,15 @@ export default class{
         this.comp = {}
         this.build = new THREE.Group()
 
-        this.init()
+        this.init(app)
     }
 
 
     // init
-    init(){
+    init({renderer}){
         this.initRenderObject()
         this.initGroup()
-        this.create()
+        this.create(renderer)
         this.add()
     }
     initGroup(){
@@ -53,7 +53,7 @@ export default class{
             }
         }
     }
-
+  
 
     // add
     add(){
@@ -64,12 +64,12 @@ export default class{
 
 
     // create
-    create(){
+    create(renderer){
         for(const module in this.modules){
             const instance = this.modules[module]
             const group = this.group[module]
 
-            this.comp[module] = new instance({group, size: this.size, texture: this.comp['texture']})
+            this.comp[module] = new instance({group, size: this.size, renderer, texture: this.comp['texture']})
         }
     }
 
