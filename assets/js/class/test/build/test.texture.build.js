@@ -123,6 +123,8 @@ export default class{
 
         for(let i = 0; i < this.param.count; i++){
             const index = i * prefabGeometryCount * 3
+
+            const scale = Math.random() > 0.5 ? 0.5 : 1
             
             const sx = Math.random() * w - w / 2
             const sy = h / 2 + this.param.radius * 2
@@ -136,6 +138,9 @@ export default class{
 
             for(let j = 0; j < prefabGeometryCount; j++){
                 const idx = index + j * 3
+
+                posArr[idx] *= scale
+                posArr[idx + 1] *= scale
 
                 start.push(sx, sy, 0)
                 end.push(ex, ey, 0)
