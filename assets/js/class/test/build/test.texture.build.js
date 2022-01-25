@@ -15,7 +15,7 @@ export default class{
             seg: 20,
             defaultDuration: 6,
             randomDuration: 4,
-            delay: 5
+            delay: 10
         }
 
         this.init(group, renderer)
@@ -26,7 +26,7 @@ export default class{
     init(group, renderer){
         this.initRenderTarget()
         this.create(group)
-        this.initGPGPU(renderer)
+        // this.initGPGPU(renderer)
     }
     initRenderTarget(){
         const {w, h} = this.size.el
@@ -125,10 +125,10 @@ export default class{
             const index = i * prefabGeometryCount * 3
             
             const sx = Math.random() * w - w / 2
-            const sy = Math.random() * h - h / 2
+            const sy = h / 2 + this.param.radius * 2
 
-            const ex = Math.random() * w - w / 2
-            const ey = Math.random() * h - h / 2
+            const ex = sx
+            const ey = -h / 2 - this.param.radius * 2
 
             const dur = Math.random() * this.param.randomDuration + this.param.defaultDuration
 
@@ -165,9 +165,9 @@ export default class{
 
     // animate
     animate(renderer){
-        this.gpuCompute.compute()
+        // this.gpuCompute.compute()
 
-        this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
+        // this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
         this.mesh.material.uniforms['uTime'].value += 1 / 60
         this.mesh.material.uniforms['uTime'].value %= (this.param.randomDuration + this.param.defaultDuration + this.param.delay)
 

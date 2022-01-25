@@ -18,12 +18,11 @@ export default {
             void main(){
                 vec3 newPosition = position;
 
-                vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
+                float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
+                newPosition += mix(aStartPosition, aEndPosition, p);
 
-                // float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
-                // newPosition += mix(aStartPosition, aEndPosition, p);
-
-                newPosition.xy = pos.xy;
+                // vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
+                // newPosition.xy = pos.xy;
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 
