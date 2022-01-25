@@ -1,3 +1,5 @@
+import * as THREE from '../../../lib/three.module.js'
+
 export default {
     fillPositionTexture(texture, {w, h, position}){
         const {data, width, height} = texture.image
@@ -7,9 +9,6 @@ export default {
 
             const px = Math.random() * w - w / 2
             const py = Math.random() * h - h / 2
-
-            const vx = Math.random() - 0.5
-            const vy = Math.random() - 0.5
 
             for(let i = 0; i < width; i++){
                 const index = (j * width + i) * 4
@@ -21,16 +20,49 @@ export default {
                 // position
                 data[index] = x + px
                 data[index + 1] = y + py
-                // velocity
-                data[index + 2] = vx
-                data[index + 3] = vy
+                // 
+                data[index + 2] = 0
+                data[index + 3] = 0
             }
         }
     },
-    fillPositionTexture2({w, h, position}){
+    createStaticVelocityTexture({w, h}){
+        const velocity = []
+
         for(let j = 0; j < h; j++){
+
+            const vx = Math.random() - 0.5
+            const vy = Math.random() - 0.5
+
             for(let i = 0; i < w; i++){
-                
+                const index = (j * w + i) * 3
+
+                // velocity
+                velocity[index] = vx
+                velocity[index + 1] = vy
+                velocity[index + 2] = 0
+            }
+        }
+
+        return new THREE.DataTexture(new Float32Array(velocity), w, h, THREE.RGBFormat, THREE.FloatType)
+    },
+    fillVelocityTexture(texture, {w, h, position}){
+        const {data, width, height} = texture.image
+        
+        for(let j = 0; j < height; j++){
+
+            const vx = Math.random() - 0.5
+            const vy = Math.random() - 0.5
+
+            for(let i = 0; i < width; i++){
+                const index = (j * width + i) * 4
+
+                // velocity
+                data[index] = vx
+                data[index + 1] = vy
+                // 
+                data[index + 2] = 0
+                data[index + 3] = 0
             }
         }
     }

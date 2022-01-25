@@ -47,19 +47,19 @@ export default class{
 
     // set texutre
     createTexture(){
-        // this.createVelocityTexture()
         this.createPositionTexture()
+        // this.createVelocityTexture()
     }
     initTexture(){
-        // this.initVelocityTexture()
         this.initPositionTexture()
+        // this.initVelocityTexture()
     }
 
     // velocity texture
     createVelocityTexture(){
         const velocity = this.gpuCompute.createTexture()
 
-        Method.fillVelocityTexture(velocity)
+        Method.fillVelocityTexture(velocity, {...this.size.obj, position: this.mesh.geometry.attributes.position})
 
         this.velocityVariable = this.gpuCompute.addVariable('tVelocity', Shader.velocity, velocity)
     }
@@ -71,8 +71,6 @@ export default class{
         // this.velocityUniforms['uTime'] = {value: null}
         // this.velocityUniforms['uTrd'] = {value: PARAM.tRd}
         // this.velocityUniforms['uNrd'] = {value: PARAM.nRd}
-        this.velocityUniforms['uRange'] = {value: PARAM.range}
-        this.velocityUniforms['uStrength'] = {value: PARAM.strength}
     }
 
     // position texture
@@ -89,6 +87,7 @@ export default class{
         this.positionUniforms = this.positionVariable.material.uniforms
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.seg + 2, h: this.param.count})}
     }
 
 

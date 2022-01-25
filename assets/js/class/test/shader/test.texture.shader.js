@@ -18,12 +18,12 @@ export default {
             void main(){
                 vec3 newPosition = position;
 
-                // vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
+                vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
 
-                float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
-                newPosition += mix(aStartPosition, aEndPosition, p);
+                // float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
+                // newPosition += mix(aStartPosition, aEndPosition, p);
 
-                // newPosition.xy = pos.xy;
+                newPosition.xy = pos.xy;
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 
@@ -40,18 +40,30 @@ export default {
     },
     position: `
         uniform vec2 uRes;
+        uniform sampler2D uVelocity;
 
         void main(){
             vec2 uv = gl_FragCoord.xy / resolution.xy;
             
             vec4 pos = texture(tPosition, uv);
+            vec4 uVel = texture(uVelocity, uv);
 
-            pos.xy += pos.zw;
+            pos.xy += uVel.xy;
 
-            pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
-            pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
+            // pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
+            // pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
 
             gl_FragColor = pos;
+        }
+    `,
+    velocity: `
+        void main(){
+            vec2 uv = gl_FragCoord.xy / resolution.xy;
+
+            vec4 vel = texture(tVelocity, uv);
+            vec4 pos = texture(tPosition, uv);
+
+            gl_FragColor = vel;
         }
     `
 }
