@@ -31,8 +31,8 @@ export default {
 
         for(let j = 0; j < h; j++){
 
-            const vx = Math.random() - 0.5
-            const vy = Math.random() - 0.5
+            const vx = 0
+            const vy = -Math.random() * 0.5
 
             for(let i = 0; i < w; i++){
                 const index = (j * w + i) * 3
@@ -57,9 +57,9 @@ export default {
             for(let i = 0; i < width; i++){
                 const index = (j * width + i) * 4
 
-                // velocity
-                data[index] = vx
-                data[index + 1] = vy
+                // check boundary
+                data[index] = 0
+                data[index + 1] = 0
                 // 
                 data[index + 2] = 0
                 data[index + 3] = 0

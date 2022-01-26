@@ -18,11 +18,11 @@ export default {
             void main(){
                 vec3 newPosition = position;
 
-                float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
-                newPosition += mix(aStartPosition, aEndPosition, p);
+                // float p = clamp(uTime - aDelay, 0.0, aDuration) / aDuration;
+                // newPosition += mix(aStartPosition, aEndPosition, p);
 
-                // vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
-                // newPosition.xy = pos.xy;
+                vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
+                newPosition.xy = pos.xy;
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 
@@ -39,15 +39,25 @@ export default {
     },
     position: `
         uniform vec2 uRes;
+        uniform float uRadius;
         uniform sampler2D uVelocity;
 
         void main(){
             vec2 uv = gl_FragCoord.xy / resolution.xy;
+            ivec2 coord = ivec2(gl_FragCoord.xy);
+            ivec2 res = ivec2(resolution.xy);
             
             vec4 pos = texture(tPosition, uv);
             vec4 uVel = texture(uVelocity, uv);
 
             pos.xy += uVel.xy;
+
+            // not perfect just hack
+            if(pos.x < -uRes.x * 0.5 - uRadius * 2.0) pos.x += uRes.x + uRadius * 2.0;
+            if(pos.x > uRes.x * 0.5 + uRadius * 2.0) pos.x -= uRes.x - uRadius * 2.0;
+
+            if(pos.y < -uRes.y * 0.5 - uRadius * 2.0) pos.y += uRes.y + uRadius * 3.0;
+            if(pos.y > uRes.y * 0.5 + uRadius * 2.0) pos.y -= uRes.y - uRadius * 2.0;
 
             // pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
             // pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
@@ -56,6 +66,8 @@ export default {
         }
     `,
     velocity: `
+        uniform vec2 uRes;
+
         void main(){
             vec2 uv = gl_FragCoord.xy / resolution.xy;
 

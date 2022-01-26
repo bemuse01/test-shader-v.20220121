@@ -26,7 +26,7 @@ export default class{
     init(group, renderer){
         this.initRenderTarget()
         this.create(group)
-        // this.initGPGPU(renderer)
+        this.initGPGPU(renderer)
     }
     initRenderTarget(){
         const {w, h} = this.size.el
@@ -87,6 +87,7 @@ export default class{
         this.positionUniforms = this.positionVariable.material.uniforms
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uRadius'] = {value: this.param.radius}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.seg + 2, h: this.param.count})}
     }
 
@@ -124,10 +125,10 @@ export default class{
         for(let i = 0; i < this.param.count; i++){
             const index = i * prefabGeometryCount * 3
 
-            const scale = Math.random() > 0.5 ? 0.5 : 1
+            const scale = Math.random() > 0.5 ? Math.random() * 0.5 + 0.5 : 1
             
             const sx = Math.random() * w - w / 2
-            const sy = h / 2 + this.param.radius * 2
+            const sy = Math.random() * h - h / 2
 
             const ex = sx
             const ey = -h / 2 - this.param.radius * 2
@@ -170,9 +171,9 @@ export default class{
 
     // animate
     animate(renderer){
-        // this.gpuCompute.compute()
+        this.gpuCompute.compute()
 
-        // this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
+        this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
         this.mesh.material.uniforms['uTime'].value += 1 / 60
         this.mesh.material.uniforms['uTime'].value %= (this.param.randomDuration + this.param.defaultDuration + this.param.delay)
 
