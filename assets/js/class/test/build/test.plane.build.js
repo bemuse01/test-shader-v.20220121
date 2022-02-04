@@ -7,7 +7,7 @@ export default class{
         this.size = size
         
         this.texture = texture.renderTarget.texture
-    
+
         this.init(group)
     }
 
@@ -43,6 +43,7 @@ export default class{
     // resize
     resize(size){
         this.size = size
+        
         this.object.resize({width: this.size.obj.w, height: this.size.obj.h, widthSeg: 1, heightSeg: 1})
     }
 }
