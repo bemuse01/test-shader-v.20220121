@@ -56,13 +56,13 @@ export default {
             vec4 pos = texture(tPosition, uv);
             vec4 uVel = texture(uVelocity, uv);
 
+            if(pos.x < -uRes.x * 0.5 - uPointSize) pos.x += uRes.x + uPointSize * 2.0;
+            if(pos.x > uRes.x * 0.5 + uPointSize) pos.x -= uRes.x - uPointSize * 2.0;
+
+            if(pos.y < -uRes.y * 0.5) pos.y += uRes.y + uPointSize * 0.5;
+            if(pos.y > uRes.y * 0.5 + uPointSize) pos.y -= uRes.y - uPointSize * 2.0;
+
             pos.xy += uVel.xy;
-
-            if(pos.x < -uRes.x * 0.5 - uPointSize * 2.0) pos.x += uRes.x + uPointSize * 2.0;
-            if(pos.x > uRes.x * 0.5 + uPointSize * 2.0) pos.x -= uRes.x - uPointSize * 2.0;
-
-            if(pos.y < -uRes.y * 0.5 - uPointSize * 2.0) pos.y += uRes.y + uPointSize * 2.0;
-            if(pos.y > uRes.y * 0.5 + uPointSize * 2.0) pos.y -= uRes.y - uPointSize * 2.0;
 
             // pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
             // pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
