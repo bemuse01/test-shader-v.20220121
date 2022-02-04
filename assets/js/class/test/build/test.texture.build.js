@@ -84,7 +84,8 @@ export default class{
 
         this.positionUniforms = this.positionVariable.material.uniforms
         
-        this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uObjRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uElRes'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
         this.positionUniforms['uPointSize'] = {value: this.param.pointSize}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
@@ -130,7 +131,8 @@ export default class{
     resize(size){
         this.size = size
 
-        this.positionUniforms['uRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
+        this.positionUniforms['uObjRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
+        this.positionUniforms['uElRes'].value = new THREE.Vector2(this.size.el.w, this.size.el.h)
     }
 
 
