@@ -12,7 +12,8 @@ export default class{
         this.param = {
             row: 30,
             col: 30,
-            pointSize: 20,
+            pointSize: 30,
+            color: 0xffffff
         }
 
         this.init(group, renderer)
@@ -98,7 +99,8 @@ export default class{
                 transparent: true,
                 uniforms: {
                     uPointSize: {value: this.param.pointSize},
-                    uPosition: {value: null}
+                    uPosition: {value: null},
+                    uColor: {value: new THREE.Color(this.param.color)}
                 }
             }
         })

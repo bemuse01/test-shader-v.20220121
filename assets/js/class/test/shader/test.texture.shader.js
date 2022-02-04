@@ -27,8 +27,19 @@ export default {
         fragment: `
             varying vec2 vUv;
 
+            uniform vec3 uColor;
+
             void main(){
-                gl_FragColor = vec4(1);
+                // if ( vColor.y == 0.0 ) discard;
+
+				// float f = length(gl_PointCoord - vec2(0.5, 0.5));
+                float f = distance(gl_PointCoord, vec2(0.5));
+
+				if(f > 0.5){
+					discard;
+				}
+
+				gl_FragColor = vec4(uColor, 1.0);
             }
         `
     },
