@@ -16,15 +16,17 @@ export default class{
             color: 0xffffff
         }
 
-        this.init(group, renderer)
+        this.renderer = renderer
+
+        this.init(group)
     }
 
 
     // init
-    init(group, renderer){
+    init(group){
         this.initRenderTarget()
         this.create(group)
-        this.initGPGPU(renderer)
+        this.initGPGPU()
     }
     initRenderTarget(){
         const {w, h} = this.size.el
@@ -36,8 +38,8 @@ export default class{
 
         this.rtScene = new THREE.Scene()
     }
-    initGPGPU(renderer){
-        this.gpuCompute = new GPUComputationRenderer(this.param.col, this.param.row, renderer)
+    initGPGPU(){
+        this.gpuCompute = new GPUComputationRenderer(this.param.col, this.param.row, this.renderer)
         this.createTexture()
         this.initTexture()
         this.gpuCompute.init()
@@ -75,7 +77,7 @@ export default class{
     createPositionTexture(){
         const position = this.gpuCompute.createTexture()
 
-        Method.fillPositionTexture(position, {...this.size.obj, position: this.object.getGeometry().attributes.position})
+        Method.fillPositionTexture(position, {...this.size.obj})
 
         this.positionVariable = this.gpuCompute.addVariable('tPosition', Shader.position, position)
     }
@@ -87,6 +89,15 @@ export default class{
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
         this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
+    }
+    resizePositionTexture(){
+        const position = this.gpuCompute.createTexture()
+        Method.fillPositionTexture(position, {...this.size.obj})
+
+        this.positionUniforms['tPosition'].value.dispose()
+        this.positionUniforms['tPosition'].value = position
+
+        this.gpuCompute.doRenderTarget(this.positionVariable.material, this.positionVariable.renderTargets[0])
     }
 
 
@@ -135,8 +146,12 @@ export default class{
 
         this.renderTarget.setSize(this.size.el.w, this.size.el.h)
 
+        // this.initGPGPU()
+
         this.positionUniforms['uRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
-        this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
+        // this.positionUniforms['uRealPointSize'].value = (this.param.pointSize / this.size.el.h) * this.size.obj.h
+
+        this.resizePositionTexture()
     }
 
 
