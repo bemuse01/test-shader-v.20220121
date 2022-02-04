@@ -19,7 +19,7 @@ export default {
 
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 
-                gl_PointSize = uPointSize;
+                gl_PointSize = pos.z;
 
                 vUv = aUv;
             }
@@ -45,6 +45,7 @@ export default {
     },
     position: `
         uniform vec2 uRes;
+        uniform vec2 uResEl;
         uniform float uRealPointSize;
         uniform sampler2D uVelocity;
 
@@ -60,12 +61,46 @@ export default {
 
             if(pos.x < -uRes.x * 0.5 - uRealPointSize) pos.x += uRes.x + uRealPointSize * 2.0;
             if(pos.x > uRes.x * 0.5 + uRealPointSize) pos.x -= uRes.x - uRealPointSize * 2.0;
-
             if(pos.y < -uRes.y * 0.5 - uRealPointSize) pos.y += uRes.y + uRealPointSize * 2.0;
             if(pos.y > uRes.y * 0.5 + uRealPointSize) pos.y -= uRes.y - uRealPointSize * 2.0;
 
-            // pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
-            // pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
+            int idx = coord.y * res.x + coord.x;
+
+            float rad = (pos.z / uResEl.y) * uRes.y;
+
+            if(pos.z > 0.0){
+
+                for(int i = 0; i < res.y; i++){
+
+                    for(int j = 0; j < res.x; j++){
+                        int idx2 = i * res.x + j;
+
+                        if(idx == idx2) continue;
+
+                        vec4 pos2 = texelFetch(tPosition, ivec2(j, i), 0);
+                        float dist = distance(pos.xy, pos2.xy);
+                        float rad2 = (pos2.z / uResEl.y) * uRes.y;
+                        float calcRad = rad + rad2;
+
+                        if(pos2.z == 0.0) continue;
+
+                        if(dist < calcRad){
+                            if(idx < idx2){
+                                pos.z += pos2.z * 0.1;
+                            }else{
+                                pos.z = 0.0;
+                                break;
+                            }
+                        }
+                    }
+
+                    if(pos.z == 0.0){
+                        break;
+                    }
+
+                }
+                
+            }
 
             gl_FragColor = pos;
         }

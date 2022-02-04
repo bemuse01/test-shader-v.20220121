@@ -1,7 +1,7 @@
 import * as THREE from '../../../lib/three.module.js'
 
 export default {
-    fillPositionTexture(texture, {w, h}){
+    fillPositionTexture(texture, {w, h, pointSize}){
         const {data, width, height} = texture.image
         
         for(let j = 0; j < height; j++){
@@ -14,8 +14,9 @@ export default {
                 // position
                 data[index] = px
                 data[index + 1] = py
-                // 
-                data[index + 2] = 0
+                // point size
+                data[index + 2] = pointSize
+                // real point size
                 data[index + 3] = 0
             }
         }

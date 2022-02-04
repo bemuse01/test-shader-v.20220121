@@ -12,7 +12,7 @@ export default class{
         this.param = {
             row: 30,
             col: 30,
-            pointSize: 30,
+            pointSize: Math.min(this.size.el.w, this.size.el.h) * 0.04,
             color: 0xffffff
         }
 
@@ -77,7 +77,7 @@ export default class{
     createPositionTexture(){
         const position = this.gpuCompute.createTexture()
 
-        Method.fillPositionTexture(position, {...this.size.obj})
+        Method.fillPositionTexture(position, {...this.size.obj, pointSize: this.param.pointSize})
 
         this.positionVariable = this.gpuCompute.addVariable('tPosition', Shader.position, position)
     }
@@ -87,12 +87,13 @@ export default class{
         this.positionUniforms = this.positionVariable.material.uniforms
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uResEl'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
         this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
     resizePositionTexture(){
         const position = this.gpuCompute.createTexture()
-        Method.fillPositionTexture(position, {...this.size.obj})
+        Method.fillPositionTexture(position, {...this.size.obj, pointSize: this.param.pointSize})
 
         this.positionUniforms['tPosition'].value.dispose()
         this.positionUniforms['tPosition'].value = position
@@ -112,7 +113,7 @@ export default class{
                 uniforms: {
                     uPointSize: {value: this.param.pointSize},
                     uPosition: {value: null},
-                    uColor: {value: new THREE.Color(this.param.color)}
+                    uColor: {value: new THREE.Color(this.param.color)},
                 }
             }
         })
