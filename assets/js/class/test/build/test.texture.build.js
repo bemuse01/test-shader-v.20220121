@@ -1,21 +1,18 @@
 import * as THREE from '../../../lib/three.module.js'
 import {GPUComputationRenderer} from '../../../lib/GPUComputationRenderer.js'
-import {PrefabBufferGeometry} from '../../../lib/three.module.extends.js'
 import Shader from '../shader/test.texture.shader.js'
 import TestParam from '../param/test.param.js'
 import Method from '../method/test.texture.method.js'
+import Particle from '../../objects/particle.js'
 
 export default class{
     constructor({group, size, renderer}){
         this.size = size
 
         this.param = {
-            count: 1000,
-            radius: 2,
-            seg: 20,
-            defaultDuration: 6,
-            randomDuration: 4,
-            delay: 10
+            row: 30,
+            col: 30,
+            pointSize: 2,
         }
 
         this.init(group, renderer)
@@ -39,7 +36,7 @@ export default class{
         this.rtScene = new THREE.Scene()
     }
     initGPGPU(renderer){
-        this.gpuCompute = new GPUComputationRenderer(this.param.seg + 2, this.param.count, renderer)
+        this.gpuCompute = new GPUComputationRenderer(this.param.col, this.param.row, renderer)
         this.createTexture()
         this.initTexture()
         this.gpuCompute.init()
@@ -59,7 +56,7 @@ export default class{
     createVelocityTexture(){
         const velocity = this.gpuCompute.createTexture()
 
-        Method.fillVelocityTexture(velocity, {...this.size.obj, position: this.mesh.geometry.attributes.position})
+        Method.fillVelocityTexture(velocity, {...this.size.obj})
 
         this.velocityVariable = this.gpuCompute.addVariable('tVelocity', Shader.velocity, velocity)
     }
@@ -77,7 +74,7 @@ export default class{
     createPositionTexture(){
         const position = this.gpuCompute.createTexture()
 
-        Method.fillPositionTexture(position, {...this.size.obj, position: this.mesh.geometry.attributes.position})
+        Method.fillPositionTexture(position, {...this.size.obj, position: this.object.getGeometry().attributes.position})
 
         this.positionVariable = this.gpuCompute.addVariable('tPosition', Shader.position, position)
     }
@@ -87,85 +84,49 @@ export default class{
         this.positionUniforms = this.positionVariable.material.uniforms
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
-        this.positionUniforms['uRadius'] = {value: this.param.radius}
-        this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.seg + 2, h: this.param.count})}
+        this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
 
 
     // create
     create(group){
-        const prefabGeometry = new THREE.CircleGeometry(this.param.radius, this.param.seg)
-        const prefabGeometryCount = prefabGeometry.attributes.position.count
-   
-        const geometry = new PrefabBufferGeometry(prefabGeometry, this.param.count)
-        const position = geometry.attributes.position
-        const posArr = position.array
-
-        const material = new THREE.ShaderMaterial({
-            vertexShader: Shader.draw.vertex,
-            fragmentShader: Shader.draw.fragment,
-            transparent: true,
-            // blending: THREE.AdditiveBlending,
-            uniforms: {
-                uTexture: {value: null},
-                uPosition: {value: null},
-                uTime: {value: null},
-                uRes: {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.object = new Particle({
+            count: this.param.col * this.param.row, 
+            materialOpt: {
+                vertexShader: Shader.draw.vertex,
+                fragmentShader: Shader.draw.fragment,
+                transparent: true,
+                uniforms: {
+                    uPointSize: {value: this.param.pointSize},
+                    uPosition: {value: null}
+                }
             }
         })
 
-        const {w, h} = this.size.obj
+        // const {position} = this.createAttribute()
 
-        const start = []
-        const end = []
-        const duration = []
-        const delay = []
-        const uv = []
+        this.object.setAttribute('position', new Float32Array(this.param.col * this.param.row * 3), 3)
 
-        for(let i = 0; i < this.param.count; i++){
-            const index = i * prefabGeometryCount * 3
+        group.add(this.object.get())
+    }
+    createAttribute(){
+        const position = []
 
-            const scale = Math.random() > 0.5 ? Math.random() * 0.5 + 0.5 : 1
-            
-            const sx = Math.random() * w - w / 2
-            const sy = Math.random() * h - h / 2
-
-            const ex = sx
-            const ey = -h / 2 - this.param.radius * 2
-
-            const dur = Math.random() * this.param.randomDuration + this.param.defaultDuration
-
-            const del = Math.random() * this.param.delay
-
-            for(let j = 0; j < prefabGeometryCount; j++){
-                const idx = index + j * 3
-
-                posArr[idx] *= scale
-                posArr[idx + 1] *= scale
-
-                start.push(sx, sy, 0)
-                end.push(ex, ey, 0)
-                duration.push(dur)
-                delay.push(del)
-                uv.push(j, i)
-            }
+        for(let i = 0; i < this.param.col * this.param.row; i++){
+            const x = Math.random() * this.size.obj.w - this.size.obj.w / 2
+            const y = Math.random() * this.size.obj.h - this.size.obj.h / 2
+            position.push(x, y, 0)
         }
 
-        geometry.setAttribute('aStartPosition', new THREE.Float32BufferAttribute(start, 3))
-        geometry.setAttribute('aEndPosition', new THREE.Float32BufferAttribute(end, 3))
-        geometry.setAttribute('aDuration', new THREE.Float32BufferAttribute(duration, 1))
-        geometry.setAttribute('aDelay', new THREE.Float32BufferAttribute(delay, 1))
-        geometry.setAttribute('aUv', new THREE.Float32BufferAttribute(uv, 2))
-
-        this.mesh = new THREE.Mesh(geometry, material)
-
-        this.rtScene.add(this.mesh)
+        return {position: new Float32Array(position)}
     }
 
     
     // resize
     resize(size){
         this.size = size
+
+        this.positionUniforms['uRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
     }
 
 
@@ -173,9 +134,7 @@ export default class{
     animate(renderer){
         this.gpuCompute.compute()
 
-        this.mesh.material.uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
-        this.mesh.material.uniforms['uTime'].value += 1 / 60
-        this.mesh.material.uniforms['uTime'].value %= (this.param.randomDuration + this.param.defaultDuration + this.param.delay)
+        this.object.getMaterial().uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
 
         renderer.setRenderTarget(this.renderTarget)
         renderer.clear()

@@ -1,25 +1,19 @@
 import * as THREE from '../../../lib/three.module.js'
 
 export default {
-    fillPositionTexture(texture, {w, h, position}){
+    fillPositionTexture(texture, {w, h}){
         const {data, width, height} = texture.image
-        const array = position.array
         
         for(let j = 0; j < height; j++){
-
-            const px = Math.random() * w - w / 2
-            const py = Math.random() * h - h / 2
-
             for(let i = 0; i < width; i++){
                 const index = (j * width + i) * 4
-                const idx = (j * width + i) * 3
 
-                const x = array[idx]
-                const y = array[idx + 1]
+                const px = Math.random() * w - w / 2
+                const py = Math.random() * h - h / 2
 
                 // position
-                data[index] = x + px
-                data[index + 1] = y + py
+                data[index] = px
+                data[index + 1] = py
                 // 
                 data[index + 2] = 0
                 data[index + 3] = 0

@@ -1,13 +1,9 @@
 import * as THREE from '../../lib/three.module.js'
 
 export default class{
-    constructor({count, lifeVelocity, materialOpt}){
+    constructor({count, materialOpt}){
         this.count = count
         this.materialOpt = materialOpt
-
-        if(lifeVelocity){
-            this.lifeVelocity = Array.from({length: count}, () => Math.random() * (lifeVelocity.max - lifeVelocity.min) + (lifeVelocity.min))
-        }
 
         this.init()
     }
@@ -21,20 +17,18 @@ export default class{
 
     // create
     create(){
-        this.createGeometry()
-        this.createMaterial()
-        this.mesh = new THREE.Points(this.geometry, this.material)
+        const geometry = this.createGeometry()
+        const material = this.createMaterial()
+        this.mesh = new THREE.Points(geometry, material)
     }
     createGeometry(){
-        this.geometry = new THREE.BufferGeometry()
-
-        this.geometry.setAttribute('position', new THREE.Float32BufferAttribute(Array.from({length: this.count * 3}, _ => 0), 3))
+        return new THREE.BufferGeometry()
     }
     createMaterial(){
         if(this.materialOpt.vertexShader){
-            this.material = new THREE.ShaderMaterial(this.materialOpt)
+            return new THREE.ShaderMaterial(this.materialOpt)
         }else{
-            this.material = new THREE.PointsMaterial(this.materialOpt)
+            return new THREE.PointsMaterial(this.materialOpt)
         }
     }
 
@@ -54,6 +48,12 @@ export default class{
     // get
     get(){
         return this.mesh
+    }
+    getGeometry(){
+        return this.mesh.geometry
+    }
+    getMaterial(){
+        return this.mesh.material
     }
     getAttribute(name){
         return this.mesh.geometry.attributes[name]
