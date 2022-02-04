@@ -7,7 +7,7 @@ export default {
 
             varying vec2 vUv;
 
-            uniform vec2 uObjRes;
+            uniform vec2 uRes;
             uniform sampler2D uPosition;
             uniform float uPointSize;
 
@@ -44,9 +44,8 @@ export default {
         `
     },
     position: `
-        uniform vec2 uObjRes;
-        uniform vec2 uElRes;
-        uniform float uPointSize;
+        uniform vec2 uRes;
+        uniform float uRealPointSize;
         uniform sampler2D uVelocity;
 
         void main(){
@@ -57,24 +56,22 @@ export default {
             vec4 pos = texture(tPosition, uv);
             vec4 uVel = texture(uVelocity, uv);
 
-            float pointSize = (uPointSize / uElRes.y) * uObjRes.y;
-
             pos.xy += uVel.xy;
 
-            if(pos.x < -uObjRes.x * 0.5 - pointSize) pos.x += uObjRes.x + pointSize * 2.0;
-            if(pos.x > uObjRes.x * 0.5 + pointSize) pos.x -= uObjRes.x - pointSize * 2.0;
+            if(pos.x < -uRes.x * 0.5 - uRealPointSize) pos.x += uRes.x + uRealPointSize * 2.0;
+            if(pos.x > uRes.x * 0.5 + uRealPointSize) pos.x -= uRes.x - uRealPointSize * 2.0;
 
-            if(pos.y < -uObjRes.y * 0.5 - pointSize) pos.y += uObjRes.y + pointSize * 2.0;
-            if(pos.y > uObjRes.y * 0.5 + pointSize) pos.y -= uObjRes.y - pointSize * 2.0;
+            if(pos.y < -uRes.y * 0.5 - uRealPointSize) pos.y += uRes.y + uRealPointSize * 2.0;
+            if(pos.y > uRes.y * 0.5 + uRealPointSize) pos.y -= uRes.y - uRealPointSize * 2.0;
 
-            // pos.x = clamp(pos.x, -uObjRes.x * 0.5, uObjRes.x * 0.5);
-            // pos.y = clamp(pos.y, -uObjRes.y * 0.5, uObjRes.y * 0.5);
+            // pos.x = clamp(pos.x, -uRes.x * 0.5, uRes.x * 0.5);
+            // pos.y = clamp(pos.y, -uRes.y * 0.5, uRes.y * 0.5);
 
             gl_FragColor = pos;
         }
     `,
     velocity: `
-        uniform vec2 uObjRes;
+        uniform vec2 uRes;
 
         void main(){
             vec2 uv = gl_FragCoord.xy / resolution.xy;

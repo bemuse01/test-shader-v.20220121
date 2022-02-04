@@ -84,9 +84,8 @@ export default class{
 
         this.positionUniforms = this.positionVariable.material.uniforms
         
-        this.positionUniforms['uObjRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
-        this.positionUniforms['uElRes'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
-        this.positionUniforms['uPointSize'] = {value: this.param.pointSize}
+        this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
+        this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
 
@@ -131,8 +130,13 @@ export default class{
     resize(size){
         this.size = size
 
-        this.positionUniforms['uObjRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
-        this.positionUniforms['uElRes'].value = new THREE.Vector2(this.size.el.w, this.size.el.h)
+        this.rtCamera.aspect = this.size.el.w / this.size.el.h
+        this.rtCamera.updateProjectionMatrix()
+
+        this.renderTarget.setSize(this.size.el.w, this.size.el.h)
+
+        this.positionUniforms['uRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
+        this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
     }
 
 
@@ -146,25 +150,5 @@ export default class{
         renderer.clear()
         renderer.render(this.rtScene, this.rtCamera)
         renderer.setRenderTarget(null)
-
-        // renderer.clear()
-
-        // const position = this.mesh.geometry.attributes.position
-        // const posArr = position.array
-
-        // for(let i = 0; i < this.param.count; i++){
-        //     const index = i * (this.param.seg + 2) * 3
- 
-        //     const {x, y} = this.velocity[i]
-
-        //     for(let j = 0; j < this.param.seg + 2; j++){
-        //         const idx = index + j * 3
-
-        //         posArr[idx] += x
-        //         posArr[idx + 1] += y
-        //     }
-        // }
-
-        // position.needsUpdate = true
     }
 }

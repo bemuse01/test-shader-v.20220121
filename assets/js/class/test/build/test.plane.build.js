@@ -1,4 +1,5 @@
 import * as THREE from '../../../lib/three.module.js'
+import Plane from '../../objects/plane.js'
 import Shader from '../shader/test.plane.shader.js'
 
 export default class{
@@ -19,18 +20,29 @@ export default class{
 
     // create
     create(group){
-        const geometry = new THREE.PlaneGeometry(this.size.obj.w, this.size.obj.h, 1, 1)
-        const material = new THREE.ShaderMaterial({
-            vertexShader: Shader.vertex,
-            fragmentShader: Shader.fragment,
-            transparent: true,
-            uniforms: {
-                uTexture: {value: this.texture},
-                uRes: {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
+        this.object = new Plane({
+            width: this.size.obj.w,
+            height: this.size.obj.h,
+            widthSeg: 1,
+            heightSeg: 1,
+            materialOpt: {
+                vertexShader: Shader.vertex,
+                fragmentShader: Shader.fragment,
+                transparent: true,
+                uniforms: {
+                    uTexture: {value: this.texture},
+                    uRes: {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
+                }
             }
         })
-        this.mesh = new THREE.Mesh(geometry, material)
 
-        group.add(this.mesh)
+        group.add(this.object.get())
+    }
+
+
+    // resize
+    resize(size){
+        this.size = size
+        this.object.resize({width: this.size.obj.w, height: this.size.obj.h, widthSeg: 1, heightSeg: 1})
     }
 }
