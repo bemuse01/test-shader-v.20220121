@@ -12,7 +12,7 @@ export default class{
         this.param = {
             row: 30,
             col: 30,
-            pointSize: 2,
+            pointSize: 20,
         }
 
         this.init(group, renderer)
@@ -103,22 +103,23 @@ export default class{
             }
         })
 
-        // const {position} = this.createAttribute()
+        const {uv} = this.createAttribute()
 
         this.object.setAttribute('position', new Float32Array(this.param.col * this.param.row * 3), 3)
+        this.object.setAttribute('aUv', new Float32Array(uv), 2)
 
-        group.add(this.object.get())
+        this.rtScene.add(this.object.get())
     }
     createAttribute(){
-        const position = []
+        const uv = []
 
-        for(let i = 0; i < this.param.col * this.param.row; i++){
-            const x = Math.random() * this.size.obj.w - this.size.obj.w / 2
-            const y = Math.random() * this.size.obj.h - this.size.obj.h / 2
-            position.push(x, y, 0)
+        for(let i = 0; i < this.param.row; i++){
+            for(let j = 0; j < this.param.col; j++){
+                uv.push(j, i)
+            }
         }
 
-        return {position: new Float32Array(position)}
+        return {uv: new Float32Array(uv)}
     }
 
     
