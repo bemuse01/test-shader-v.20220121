@@ -54,6 +54,9 @@ export default class{
         this.initPositionTexture()
         // this.initVelocityTexture()
     }
+    disposeTexture(){
+        this.disposePositionTexture()
+    }
 
     // velocity texture
     createVelocityTexture(){
@@ -88,8 +91,11 @@ export default class{
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
         this.positionUniforms['uResEl'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
-        this.positionUniforms['uRealPointSize'] = {value: (this.param.pointSize / this.size.el.h) * this.size.obj.h}
         this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
+    }
+    disposePositionTexture(){
+        this.positionUniforms['tPosition'].value.dispose()
+        this.positionUniforms['uVelocity'].value.dispose()
     }
     resizePositionTexture(){
         const position = this.gpuCompute.createTexture()
@@ -114,6 +120,7 @@ export default class{
                     uPointSize: {value: this.param.pointSize},
                     uPosition: {value: null},
                     uColor: {value: new THREE.Color(this.param.color)},
+                    uCameraConst: {value: null}
                 }
             }
         })
@@ -137,22 +144,33 @@ export default class{
         return {uv: new Float32Array(uv)}
     }
 
+
+    // dispose
+    dispose(){
+        this.rtScene.remove(this.object.get())
+        this.object.dispose()
+    }
+
     
     // resize
     resize(size){
         this.size = size
-
+        this.resizeRenderObject()
+        this.resizeGPGPU()
+    }
+    resizeRenderObject(){
         this.rtCamera.aspect = this.size.el.w / this.size.el.h
         this.rtCamera.updateProjectionMatrix()
 
         this.renderTarget.setSize(this.size.el.w, this.size.el.h)
-
+    }
+    resizeGPGPU(){
+        // this.disposeTexture()
         // this.initGPGPU()
+        this.resizePositionTexture()
 
         this.positionUniforms['uRes'].value = new THREE.Vector2(this.size.obj.w, this.size.obj.h)
-        // this.positionUniforms['uRealPointSize'].value = (this.param.pointSize / this.size.el.h) * this.size.obj.h
-
-        this.resizePositionTexture()
+        this.positionUniforms['uResEl'].value = new THREE.Vector2(this.size.el.w, this.size.el.h)
     }
 
 

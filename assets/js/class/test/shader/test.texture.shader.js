@@ -46,7 +46,6 @@ export default {
     position: `
         uniform vec2 uRes;
         uniform vec2 uResEl;
-        uniform float uRealPointSize;
         uniform sampler2D uVelocity;
 
         void main(){
@@ -57,16 +56,16 @@ export default {
             vec4 pos = texture(tPosition, uv);
             vec4 uVel = texture(uVelocity, uv);
 
+            float rad = (pos.z / uResEl.y) * uRes.y * 0.5;
+
             pos.xy += uVel.xy;
 
-            if(pos.x < -uRes.x * 0.5 - uRealPointSize) pos.x += uRes.x + uRealPointSize * 2.0;
-            if(pos.x > uRes.x * 0.5 + uRealPointSize) pos.x -= uRes.x - uRealPointSize * 2.0;
-            if(pos.y < -uRes.y * 0.5 - uRealPointSize) pos.y += uRes.y + uRealPointSize * 2.0;
-            if(pos.y > uRes.y * 0.5 + uRealPointSize) pos.y -= uRes.y - uRealPointSize * 2.0;
+            if(pos.x < -uRes.x * 0.5 - rad) pos.x += uRes.x + rad * 2.0;
+            if(pos.x > uRes.x * 0.5 + rad) pos.x -= uRes.x - rad * 2.0;
+            if(pos.y < -uRes.y * 0.5 - rad) pos.y += uRes.y + rad * 2.0;
+            if(pos.y > uRes.y * 0.5 + rad) pos.y -= uRes.y - rad * 2.0;
 
             int idx = coord.y * res.x + coord.x;
-
-            float rad = (pos.z / uResEl.y) * uRes.y;
 
             if(pos.z > 0.0){
 
@@ -79,8 +78,10 @@ export default {
 
                         vec4 pos2 = texelFetch(tPosition, ivec2(j, i), 0);
                         float dist = distance(pos.xy, pos2.xy);
-                        float rad2 = (pos2.z / uResEl.y) * uRes.y;
+                        float rad2 = (pos2.z / uResEl.y) * uRes.y * 0.5;
                         float calcRad = rad + rad2;
+
+                        if(dist == 0.0) continue;
 
                         if(pos2.z == 0.0) continue;
 

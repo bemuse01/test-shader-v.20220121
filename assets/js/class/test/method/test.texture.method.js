@@ -27,7 +27,7 @@ export default {
         for(let j = 0; j < h; j++){
 
             const vx = 0
-            const vy = -Math.random() * 0.5
+            const vy = -(Math.random() * 0.05 + 0.05) 
 
             for(let i = 0; i < w; i++){
                 const index = (j * w + i) * 3
