@@ -10,8 +10,8 @@ export default class{
         this.size = size
 
         this.param = {
-            row: 30,
-            col: 30,
+            row: 50,
+            col: 50,
             pointSize: Math.min(this.size.el.w, this.size.el.h) * 0.04,
             color: 0xffffff
         }
