@@ -58,50 +58,50 @@ export default {
 
             float rad = (pos.z / uResEl.y) * uRes.y * 0.5;
 
-            pos.xy += uVel.xy;
+            // pos.xy += uVel.xy;
 
             if(pos.x < -uRes.x * 0.5 - rad) pos.x += uRes.x + rad * 2.0;
             if(pos.x > uRes.x * 0.5 + rad) pos.x -= uRes.x - rad * 2.0;
             if(pos.y < -uRes.y * 0.5 - rad) pos.y += uRes.y + rad * 2.0;
             if(pos.y > uRes.y * 0.5 + rad) pos.y -= uRes.y - rad * 2.0;
 
-            int idx = coord.y * res.x + coord.x;
+            // int idx = coord.y * res.x + coord.x;
 
-            if(pos.z > 0.0){
+            // if(pos.z > 0.0){
 
-                for(int i = 0; i < res.y; i++){
+            //     for(int i = 0; i < res.y; i++){
 
-                    for(int j = 0; j < res.x; j++){
-                        int idx2 = i * res.x + j;
+            //         for(int j = 0; j < res.x; j++){
+            //             int idx2 = i * res.x + j;
 
-                        if(idx == idx2) continue;
+            //             if(idx == idx2) continue;
 
-                        vec4 pos2 = texelFetch(tPosition, ivec2(j, i), 0);
-                        float dist = distance(pos.xy, pos2.xy);
-                        float rad2 = (pos2.z / uResEl.y) * uRes.y * 0.5;
-                        float calcRad = rad + rad2;
+            //             vec4 pos2 = texelFetch(tPosition, ivec2(j, i), 0);
+            //             float dist = distance(pos.xy, pos2.xy);
+            //             float rad2 = (pos2.z / uResEl.y) * uRes.y * 0.5;
+            //             float calcRad = rad + rad2;
 
-                        if(dist == 0.0) continue;
+            //             if(dist == 0.0) continue;
 
-                        if(pos2.z == 0.0) continue;
+            //             if(pos2.z == 0.0) continue;
 
-                        if(dist < calcRad){
-                            if(idx < idx2){
-                                pos.z += pos2.z * 0.1;
-                            }else{
-                                pos.z = 0.0;
-                                break;
-                            }
-                        }
-                    }
+            //             if(dist < calcRad){
+            //                 if(idx < idx2){
+            //                     pos.z += pos2.z * 0.1;
+            //                 }else{
+            //                     pos.z = 0.0;
+            //                     break;
+            //                 }
+            //             }
+            //         }
 
-                    if(pos.z == 0.0){
-                        break;
-                    }
+            //         if(pos.z == 0.0){
+            //             break;
+            //         }
 
-                }
+            //     }
                 
-            }
+            // }
 
             gl_FragColor = pos;
         }
