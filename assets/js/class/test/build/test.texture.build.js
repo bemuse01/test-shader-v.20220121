@@ -10,8 +10,8 @@ export default class{
         this.size = size
 
         this.param = {
-            row: 50,
-            col: 50,
+            row: 10,
+            col: 10,
             pointSize: Math.min(this.size.el.w, this.size.el.h) * 0.04,
             color: 0xffffff
         }
@@ -48,11 +48,11 @@ export default class{
     // set texutre
     createTexture(){
         this.createPositionTexture()
-        // this.createVelocityTexture()
+        this.createVelocityTexture()
     }
     initTexture(){
         this.initPositionTexture()
-        // this.initVelocityTexture()
+        this.initVelocityTexture()
     }
     disposeTexture(){
         this.disposePositionTexture()
@@ -74,6 +74,7 @@ export default class{
         // this.velocityUniforms['uTime'] = {value: null}
         // this.velocityUniforms['uTrd'] = {value: PARAM.tRd}
         // this.velocityUniforms['uNrd'] = {value: PARAM.nRd}
+        this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
     }
 
     // position texture
@@ -85,13 +86,13 @@ export default class{
         this.positionVariable = this.gpuCompute.addVariable('tPosition', Shader.position, position)
     }
     initPositionTexture(){
-        this.gpuCompute.setVariableDependencies(this.positionVariable, [this.positionVariable])
+        this.gpuCompute.setVariableDependencies(this.positionVariable, [this.positionVariable, this.velocityVariable])
 
         this.positionUniforms = this.positionVariable.material.uniforms
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
         this.positionUniforms['uResEl'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
-        this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
+        // this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
     disposePositionTexture(){
         this.positionUniforms['tPosition'].value.dispose()
@@ -111,7 +112,7 @@ export default class{
     // create
     create(group){
         this.object = new Particle({
-            count: this.param.col * this.param.row, 
+            materialName: 'ShaderMaterial',
             materialOpt: {
                 vertexShader: Shader.draw.vertex,
                 fragmentShader: Shader.draw.fragment,
@@ -178,7 +179,8 @@ export default class{
     animate(renderer){
         this.gpuCompute.compute()
 
-        this.object.getMaterial().uniforms['uPosition'].value = this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture
+        this.object.setUniform('uPosition', this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture)
+        // this.object.setUniform('u', this.gpuCompute.getCurrentRenderTarget(this.velocityVariable).texture)
 
         renderer.setRenderTarget(this.renderTarget)
         renderer.clear()

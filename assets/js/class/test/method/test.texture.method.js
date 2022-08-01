@@ -15,7 +15,7 @@ export default {
                 data[index] = px
                 data[index + 1] = py
                 // point size
-                data[index + 2] = THREE.Math.randFloat(pointSize * 0.5, pointSize * 0.75)
+                data[index + 2] = THREE.Math.randFloat(pointSize * 0.75, pointSize * 1)
                 // real point size
                 data[index + 3] = 0
             }
@@ -27,7 +27,7 @@ export default {
         for(let j = 0; j < h; j++){
 
             const vx = 0
-            const vy = -(Math.random() * 0.05 + 0.05) 
+            const vy = -(Math.random() * 0.4 + 0.1) 
 
             for(let i = 0; i < w; i++){
                 const index = (j * w + i) * 3
@@ -46,14 +46,14 @@ export default {
         
         for(let j = 0; j < height; j++){
 
-            const vx = Math.random() - 0.5
-            const vy = Math.random() - 0.5
+            // const vx = Math.random() - 0.5
+            const vy = -(Math.random() * 0.4 + 0.1) 
 
             for(let i = 0; i < width; i++){
                 const index = (j * width + i) * 4
 
-                // check boundary
-                data[index] = 0
+                // velocity
+                data[index] = vy
                 data[index + 1] = 0
                 // 
                 data[index + 2] = 0

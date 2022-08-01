@@ -46,7 +46,7 @@ export default {
     position: `
         uniform vec2 uRes;
         uniform vec2 uResEl;
-        uniform sampler2D uVelocity;
+        // uniform sampler2D uVelocity;
 
         void main(){
             vec2 uv = gl_FragCoord.xy / resolution.xy;
@@ -54,11 +54,11 @@ export default {
             ivec2 res = ivec2(resolution.xy);
             
             vec4 pos = texture(tPosition, uv);
-            vec4 uVel = texture(uVelocity, uv);
+            vec4 vel = texture(tVelocity, uv);
 
             float rad = (pos.z / uResEl.y) * uRes.y * 0.5;
 
-            // pos.xy += uVel.xy;
+            pos.y += vel.x;
 
             if(pos.x < -uRes.x * 0.5 - rad) pos.x += uRes.x + rad * 2.0;
             if(pos.x > uRes.x * 0.5 + rad) pos.x -= uRes.x - rad * 2.0;
@@ -114,6 +114,8 @@ export default {
 
             vec4 vel = texture(tVelocity, uv);
             vec4 pos = texture(tPosition, uv);
+
+            if(pos.y < -uRes.y * 0.5 - rad) pos.y += uRes.y + rad * 2.0;
 
             gl_FragColor = vel;
         }

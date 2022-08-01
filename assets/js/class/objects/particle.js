@@ -1,8 +1,8 @@
 import * as THREE from '../../lib/three.module.js'
 
 export default class{
-    constructor({count, materialOpt}){
-        this.count = count
+    constructor({materialName, materialOpt}){
+        this.materialName = materialName
         this.materialOpt = materialOpt
 
         this.init()
@@ -17,19 +17,15 @@ export default class{
 
     // create
     create(){
-        const geometry = this.createGeometry()
-        const material = this.createMaterial()
-        this.mesh = new THREE.Points(geometry, material)
+        this.createGeometry()
+        this.createMaterial()
+        this.mesh = new THREE.Points(this.geometry, this.material)
     }
     createGeometry(){
-        return new THREE.BufferGeometry()
+        this.geometry = new THREE.BufferGeometry()
     }
     createMaterial(){
-        if(this.materialOpt.vertexShader){
-            return new THREE.ShaderMaterial(this.materialOpt)
-        }else{
-            return new THREE.PointsMaterial(this.materialOpt)
-        }
+        this.material = new THREE[this.materialName](this.materialOpt)
     }
 
 
@@ -37,6 +33,8 @@ export default class{
     dispose(){
         this.mesh.geometry.dispose()
         this.mesh.material.dispose()
+        this.mesh.geometry = null
+        this.mesh.material = null
         this.mesh = null
     }
 
@@ -45,19 +43,19 @@ export default class{
     setAttribute(name, array, itemSize){
         this.mesh.geometry.setAttribute(name, new THREE.BufferAttribute(array, itemSize))
     }
+    setUniform(name, value){
+        this.material.uniforms[name].value = value
+    }
 
 
     // get
     get(){
         return this.mesh
     }
-    getGeometry(){
-        return this.mesh.geometry
-    }
-    getMaterial(){
-        return this.mesh.material
-    }
     getAttribute(name){
         return this.mesh.geometry.attributes[name]
+    }
+    getMaterial(){
+        return this.material
     }
 }
