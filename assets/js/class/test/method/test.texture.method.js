@@ -15,9 +15,9 @@ export default {
                 data[index] = px
                 data[index + 1] = py
                 // point size
-                data[index + 2] = THREE.Math.randFloat(pointSize * 0.75, pointSize * 1)
-                // real point size
-                data[index + 3] = 0
+                data[index + 2] = Math.random() * 2 + 2
+                // alpha
+                data[index + 3] = 1
             }
         }
     },

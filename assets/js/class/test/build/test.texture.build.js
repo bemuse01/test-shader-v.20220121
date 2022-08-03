@@ -4,14 +4,16 @@ import Shader from '../shader/test.texture.shader.js'
 import TestParam from '../param/test.param.js'
 import Method from '../method/test.texture.method.js'
 import Particle from '../../objects/particle.js'
+import PublicMethod from '../../../method/method.js'
 
 export default class{
-    constructor({group, size, renderer}){
+    constructor({group, size, renderer, camera}){
         this.size = size
+        this.camera = camera
 
         this.param = {
-            row: 10,
-            col: 10,
+            row: 4,
+            col: 4,
             pointSize: Math.min(this.size.el.w, this.size.el.h) * 0.04,
             color: 0xffffff
         }
@@ -92,6 +94,7 @@ export default class{
         
         this.positionUniforms['uRes'] = {value: new THREE.Vector2(this.size.obj.w, this.size.obj.h)}
         this.positionUniforms['uResEl'] = {value: new THREE.Vector2(this.size.el.w, this.size.el.h)}
+        this.positionUniforms['time'] = {value: 0}
         // this.positionUniforms['uVelocity'] = {value: Method.createStaticVelocityTexture({w: this.param.col, h: this.param.row})}
     }
     disposePositionTexture(){
@@ -121,7 +124,8 @@ export default class{
                     uPointSize: {value: this.param.pointSize},
                     uPosition: {value: null},
                     uColor: {value: new THREE.Color(this.param.color)},
-                    uCameraConst: {value: null}
+                    cameraConstant: {value: PublicMethod.getCameraConstant(this.size.el.h, this.camera)},
+                    time: {value: 0}
                 }
             }
         })
@@ -179,8 +183,12 @@ export default class{
     animate(renderer){
         this.gpuCompute.compute()
 
+        const time = window.performance.now()
+
         this.object.setUniform('uPosition', this.gpuCompute.getCurrentRenderTarget(this.positionVariable).texture)
         // this.object.setUniform('u', this.gpuCompute.getCurrentRenderTarget(this.velocityVariable).texture)
+        // this.object.setUniform('time', time)
+        this.positionUniforms['time'].value = time
 
         renderer.setRenderTarget(this.renderTarget)
         renderer.clear()
