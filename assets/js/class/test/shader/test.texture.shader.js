@@ -85,7 +85,7 @@ export default {
             // if(pos.y > uRes.y * 0.5 + rad) pos.y -= uRes.y - rad * 2.0;
             if(pos.y < -uRes.y * 0.5){
                 pos.x = rand(vec2(time * 0.001 * uv.x, time * 0.01)) * uRes.x - (uRes.x * 0.5);
-                pos.y = rand(vec2(time * 0.002 * uv.y, time * 0.02)) * uRes.y - (uRes.y * 0.5);
+                pos.y = rand(vec2(time * 0.002 * uv.y, time * 0.02)) * uRes.y * 0.5;
                 // pos.z = 3.0;
             }
 
