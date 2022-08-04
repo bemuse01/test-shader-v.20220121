@@ -72,7 +72,8 @@ export default {
             ivec2 res = ivec2(resolution.xy);
             int idx = coord.y * res.x + coord.x;
             
-            vec4 pos = texture(tPosition, uv);
+            // vec4 pos = texture(tPosition, uv);
+            vec4 pos = texelFetch(tPosition, coord, 0);
             vec4 vel = texture(tVelocity, uv);
 
             float rad = pos.z;
