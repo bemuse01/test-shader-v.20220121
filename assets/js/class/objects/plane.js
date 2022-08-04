@@ -1,13 +1,14 @@
 import * as THREE from '../../lib/three.module.js'
 
 export default class{
-    constructor({width, height, widthSeg, heightSeg, materialOpt}){
+    constructor({width, height, widthSeg, heightSeg, materialName, materialOpt}){
         this.width = width
         this.height = height
         this.widthSeg = widthSeg
         this.heightSeg = heightSeg
+        this.materialName = materialName
         this.materialOpt = materialOpt
-
+    
         this.init()
     }
 
@@ -21,30 +22,56 @@ export default class{
     // create
     create(){
         const geometry = this.createGeometry()
-        const material = this.createMaterial()
-        this.mesh = new THREE.Mesh(geometry, material)
+        this.createMaterial()
+        this.mesh = new THREE.Mesh(geometry, this.material)
     }
     createGeometry(){
         return new THREE.PlaneGeometry(this.width, this.height, this.widthSeg, this.heightSeg)
     }
     createMaterial(){
-        if(this.materialOpt.vertexShader){
-            return new THREE.ShaderMaterial(this.materialOpt)
-        }else{
-            return new THREE.MeshBasicMaterial(this.materialOpt)
-        }
+        this.material = new THREE[this.materialName](this.materialOpt)
     }
 
 
-    // resize
-    resize({width, height, widthSeg, heightSeg}){
-        this.width = width
-        this.height = height
-        this.widthSeg = widthSeg
-        this.heightSeg = heightSeg
+    // dispose
+    dispose(){
+        const uniforms = this.getUniforms()
 
-        this.mesh.geometry.dispose()
-        this.mesh.geometry = this.createGeometry()
+        if(uniforms){
+            for(const name in uniforms){
+                if(!uniforms[name].value.dispose) continue 
+                uniforms[name].value.dispose()
+                uniforms[name].value = null
+            }
+        }else{
+            if(this.getMaterial().map) {
+                this.getMaterial().map.dispose()
+                this.getMaterial().map = null
+            }
+        }
+
+        this.getGeometry().dispose()
+        this.getMaterial().dispose()
+
+        this.mesh.geometry = null
+        this.mesh.material = null
+        this.mesh = null
+    }
+
+
+    // set
+    setAttribute(name, array, itemSize){
+        this.mesh.geometry.setAttribute(name, new THREE.BufferAttribute(array, itemSize))
+    }
+    setUniform(name, value, idx){
+        if(idx === undefined){
+            this.mesh.material.uniforms[name].value = value
+        }else{
+            this.mesh.material.uniforms[name].value[idx] = value
+        }
+    }
+    setMaterial(material){
+        this.mesh.material = material
     }
 
 
@@ -56,6 +83,15 @@ export default class{
         return this.mesh.geometry
     }
     getMaterial(){
-        return this.mesh.material
+        return this.material
+    }
+    getAttribute(name){
+        return this.mesh.geometry.attributes[name]
+    }
+    getUniforms(){
+        return this.mesh.material.uniforms
+    }
+    getUniform(name){
+        return this.mesh.material.uniforms[name].value
     }
 }

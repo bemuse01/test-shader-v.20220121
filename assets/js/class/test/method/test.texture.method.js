@@ -15,7 +15,7 @@ export default {
                 data[index] = px
                 data[index + 1] = py
                 // point size
-                data[index + 2] = Math.random() * 2 + 2
+                data[index + 2] = 3
                 // alpha
                 data[index + 3] = 1
             }

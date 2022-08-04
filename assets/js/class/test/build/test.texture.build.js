@@ -5,36 +5,41 @@ import TestParam from '../param/test.param.js'
 import Method from '../method/test.texture.method.js'
 import Particle from '../../objects/particle.js'
 import PublicMethod from '../../../method/method.js'
+import Param from '../param/test.texture.param.js'
 
 export default class{
-    constructor({group, size, renderer, camera}){
+    constructor({size, renderer, camera}){
+        // this.group = group
         this.size = size
+        this.renderer = renderer
         this.camera = camera
 
         this.param = {
-            row: 4,
-            col: 4,
+            row: Param.row,
+            col: Param.col,
             pointSize: Math.min(this.size.el.w, this.size.el.h) * 0.04,
-            color: 0xffffff
+            color: 0xffffff,
+            font: 'Arial',
+            fontSize: '20px',
+            fontColor: '#ff0000'
         }
 
-        this.renderer = renderer
-
-        this.init(group)
+        this.init()
     }
 
 
     // init
-    init(group){
+    init(){
         this.initRenderTarget()
-        this.create(group)
+        this.create()
         this.initGPGPU()
     }
     initRenderTarget(){
         const {w, h} = this.size.el
 
-        this.renderTarget = new THREE.WebGLMultisampleRenderTarget(w, h, {format: THREE.RGBAFormat})
-        
+        this.renderTarget = new THREE.WebGLRenderTarget(w, h, {format: THREE.RGBAFormat})
+        this.renderTarget.samples = 1024
+
         this.rtCamera = new THREE.PerspectiveCamera(TestParam.fov, w / h, TestParam.near, TestParam.far)
         this.rtCamera.position.z = TestParam.pos
 
@@ -113,7 +118,9 @@ export default class{
 
 
     // create
-    create(group){
+    create(){
+        const textures = this.initCanvasTexture()
+
         this.object = new Particle({
             materialName: 'ShaderMaterial',
             materialOpt: {
@@ -125,8 +132,10 @@ export default class{
                     uPosition: {value: null},
                     uColor: {value: new THREE.Color(this.param.color)},
                     cameraConstant: {value: PublicMethod.getCameraConstant(this.size.el.h, this.camera)},
-                    time: {value: 0}
-                }
+                    time: {value: 0},
+                    textures: {value: textures}
+                },
+                glslVersion: THREE.GLSL3
             }
         })
 
@@ -147,6 +156,93 @@ export default class{
         }
 
         return {uv: new Float32Array(uv)}
+    }
+
+
+    // texture
+    initCanvasTexture(){
+        const width = 16
+        const height = 16
+        const depth = this.param.row * this.param.col
+        const data = []
+
+        // for(let i = 0; i < this.param.row; i++){
+        //     for(let j = 0; j < this.param.col; j++){
+        //         const idx = i * this.param.col + j
+        //         const ctx = this.createCanvasTexture({width, height})
+        //         this.drawCanvasTexture(ctx, idx + '', {...this.param})
+
+        //         const d = [...ctx.getImageData(0, 0, width, height).data]
+
+        //         data.push(...d)
+        //     }
+        // }
+
+        for(let i = 0; i < depth; i++){
+            const ctx = this.createCanvasTexture({width, height})
+            this.drawCanvasTexture(ctx, i + '', {...this.param})
+
+            const d = [...ctx.getImageData(0, 0, width, height).data]
+
+            data.push(...d)
+        }
+        // console.log(data)
+
+        // const width = 32;
+        // const height = 32;
+        // const depth = this.param.row * this.param.col;
+        
+        // const size = width * height;
+        // const data = new Uint8Array( 4 * size * depth );
+        
+        // for ( let i = 0; i < depth; i ++ ) {
+        
+        //     const color = new THREE.Color( Math.random(), Math.random(), Math.random() );
+        //     const r = Math.floor( color.r * 255 );
+        //     const g = Math.floor( color.g * 255 );
+        //     const b = Math.floor( color.b * 255 );
+        
+        //     for ( let j = 0; j < size; j ++ ) {
+        
+        //         const stride = ( i * size + j ) * 4;
+        
+        //         data[ stride ] = r;
+        //         data[ stride + 1 ] = g;
+        //         data[ stride + 2 ] = b;
+        //         data[ stride + 3 ] = 255;
+        
+        //     }
+        // }
+
+        const texture = new THREE.DataArrayTexture(new Uint8Array(data), width, height, depth)
+        texture.needsUpdate = true
+
+        console.log(texture)
+
+        return texture
+    }
+    createCanvasTexture({width, height}){
+        const ctx = document.createElement('canvas').getContext('2d')
+        ctx.canvas.width = width
+        ctx.canvas.height = height
+        return ctx
+    }
+    drawCanvasTexture(ctx, txt1, {font, fontColor, fontSize}){
+        const {width, height} = ctx.canvas
+
+        // ctx.clearRect(0, 0, width, height)
+        ctx.fillStyle = '#ffffff'
+        ctx.fillRect(0, 0, width, height)
+
+        ctx.font = `${fontSize} ${font}`
+        ctx.textAlign = 'center'
+        ctx.textBaseline = 'middle'
+        ctx.fillStyle = fontColor
+        // ctx.fillText(~~(window.performance.now()), width / 2, height / 2)
+        ctx.fillText(txt1, width / 2, height / 2)
+        ctx.fillText(txt1, width / 2, height / 2)
+        ctx.fillText(txt1, width / 2, height / 2)
+        ctx.fillText(txt1, width / 2, height / 2)
     }
 
 
@@ -180,7 +276,7 @@ export default class{
 
 
     // animate
-    animate(renderer){
+    animate(){
         this.gpuCompute.compute()
 
         const time = window.performance.now()
@@ -190,9 +286,9 @@ export default class{
         // this.object.setUniform('time', time)
         this.positionUniforms['time'].value = time
 
-        renderer.setRenderTarget(this.renderTarget)
-        renderer.clear()
-        renderer.render(this.rtScene, this.rtCamera)
-        renderer.setRenderTarget(null)
+        this.renderer.setRenderTarget(this.renderTarget)
+        this.renderer.clear()
+        this.renderer.render(this.rtScene, this.rtCamera)
+        this.renderer.setRenderTarget(null)
     }
 }

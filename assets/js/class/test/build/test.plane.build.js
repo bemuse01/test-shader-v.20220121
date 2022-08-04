@@ -25,6 +25,7 @@ export default class{
             height: this.size.obj.h,
             widthSeg: 1,
             heightSeg: 1,
+            materialName: 'ShaderMaterial',
             materialOpt: {
                 vertexShader: Shader.vertex,
                 fragmentShader: Shader.fragment,

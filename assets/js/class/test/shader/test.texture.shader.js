@@ -1,4 +1,5 @@
 import ShaderMethod from '../../../method/method.shader.js'
+import Param from '../param/test.texture.param.js'
 
 export default {
     draw: {
@@ -14,9 +15,11 @@ export default {
             uniform float cameraConstant;
 
             void main(){
+                ivec2 coord = ivec2(aUv);
+                int idx = coord.y * ${Param.col} + coord.x;
                 vec3 newPosition = position;
 
-                vec4 pos = texelFetch(uPosition, ivec2(aUv), 0);
+                vec4 pos = texelFetch(uPosition, coord, 0);
                 newPosition.xy = pos.xy;
 
                 vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.0);
@@ -29,22 +32,29 @@ export default {
             }
         `,
         fragment: `
+            precision highp sampler2DArray;
+
             varying vec2 vUv;
             varying float vAlpha;
 
             uniform vec3 uColor;
+            uniform sampler2DArray textures;
+
+            out vec4 outColor;
 
             void main(){
-                // if ( vColor.y == 0.0 ) discard;
-
 				// float f = length(gl_PointCoord - vec2(0.5, 0.5));
                 float f = distance(gl_PointCoord, vec2(0.5));
 
-				if(f > 0.5){
-					discard;
-				}
+                ivec2 coord = ivec2(vUv);
+                int idx = coord.y * ${Param.col} + coord.x;
+                vec4 color = texture(textures, vec3(gl_PointCoord, idx));
 
-				gl_FragColor = vec4(vec3(vAlpha), 1.0);
+				// if(f > 0.5){
+				// 	discard;
+				// }
+
+				outColor = color;
             }
         `
     },

@@ -2,28 +2,32 @@ import * as THREE from '../../lib/three.module.js'
 import PublicMethod from '../../method/method.js'
 import PARAM from './param/test.param.js'
 
-import TEXTURE from './build/test.texture.build.js'
-import PLANE from './build/test.plane.build.js'
+import Texture from './build/test.texture.build.js'
+import Plane from './build/test.plane.build.js'
+import Child from './build/test.child.build.js'
 
 export default class{
     constructor({app}){
+        this.renderer = app.renderer
+
         this.modules = {
-            texture: TEXTURE,
-            plane: PLANE
+            Texture,
+            Plane
+            // Child
         }
         this.group = {}
         this.comp = {}
         this.build = new THREE.Group()
 
-        this.init(app)
+        this.init()
     }
 
 
     // init
-    init({renderer}){
+    init(){
         this.initRenderObject()
         this.initGroup()
-        this.create(renderer)
+        this.create()
         this.add()
     }
     initGroup(){
@@ -64,41 +68,41 @@ export default class{
 
 
     // create
-    create(renderer){
+    create(){
         for(const module in this.modules){
             const instance = this.modules[module]
             const group = this.group[module]
 
-            this.comp[module] = new instance({group, size: this.size, renderer, texture: this.comp['texture'], camera: this.camera})
+            this.comp[module] = new instance({group, size: this.size, renderer: this.renderer, texture: this.comp['Texture'], camera: this.camera})
         }
     }
 
 
     // animate
-    animate({app}){
-        this.render(app)
+    animate(){
+        this.render()
     }
-    render(app){
+    render(){
         const rect = this.element.getBoundingClientRect()
         const width = rect.right - rect.left
         const height = rect.bottom - rect.top
         const left = rect.left
-        const bottom = app.renderer.domElement.clientHeight - rect.bottom
+        const bottom = this.renderer.domElement.clientHeight - rect.bottom
 
-        // app.renderer.clear()
+        // this.renderer.clear()
 
-        app.renderer.setScissor(left, bottom, width, height)
-        app.renderer.setViewport(left, bottom, width, height)
+        this.renderer.setScissor(left, bottom, width, height)
+        this.renderer.setViewport(left, bottom, width, height)
 
-        this.animateObject(app)
+        this.animateObject()
 
         this.camera.lookAt(this.scene.position)
-        app.renderer.render(this.scene, this.camera)
+        this.renderer.render(this.scene, this.camera)
     }
-    animateObject({renderer}){
+    animateObject(){
         for(let i in this.comp){
             if(!this.comp[i] || !this.comp[i].animate) continue
-            this.comp[i].animate(renderer)
+            this.comp[i].animate()
         }
     }
 
